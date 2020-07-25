@@ -2,6 +2,18 @@
 
 they're all single-files because come *on*
 
+## html5video
+
+Native HTML5 video tags using the same syntax as inline image embeds.
+
+### Usage
+
+Just embed video files as if they were images. Video files are detected based on their file extension.
+
+```markdown
+![alt](./video.mp4)
+```
+
 
 ## Spoiler box
 
