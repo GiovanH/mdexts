@@ -11,9 +11,6 @@ SCRIPT_PREREQ = """
 <script>
     function loggle(button, hidetext, showtext) {
         table = button.parentNode.children[1];
-        console.log(button.parentNode);
-        console.log(button.parentNode.children);
-        console.log(table);
         if (table.style.display == 'none') {
             // We were hidden, now show.
             table.style.display = 'block';
