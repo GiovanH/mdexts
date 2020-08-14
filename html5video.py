@@ -50,25 +50,10 @@ class VideoInlineProcessor(LinkInlineProcessor):
 
 
 class VideoExtension(Extension):
-    """
-    Manage configuration options for the KBD markdown extension and attach 
-    patterns for each configured Markdown syntactical element.
-    """
-
-    def __init__(self, **kwargs):
-        # Define config options and defaults
-        # self.config = {
-        #     "Key": ["Default", "Description"],
-        # }
-        super().__init__(**kwargs)
 
     def extendMarkdown(self, md):
         md.inlinePatterns.register(VideoInlineProcessor(IMAGE_LINK_RE, md), 'video_link', 180)
 
 
 def makeExtension(**kwargs):
-    """
-    Return an instance of the KBD Python-Markdown extension.
-    This method enables the extension for use in MkDocs.
-    """
     return VideoExtension(**kwargs)

@@ -86,8 +86,4 @@ class SpoilerblockPreprocessor(markdown.preprocessors.Preprocessor):
 
 
 def makeExtension(**kwargs):
-    """
-    Return an instance of the KBD Python-Markdown extension.
-    This method enables the extension for use in MkDocs.
-    """
     return SpoilerMdExtension(**kwargs)
