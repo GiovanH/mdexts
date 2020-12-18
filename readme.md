@@ -68,3 +68,8 @@ button.spoiler-button {
     padding: 1px 35px;
 }
 ```
+
+Note: Including headers inside spoiler boxes is *not* recommended for various semantic reasons, including
+
+- Inconsistent anchorlink behaviour
+- Incompatibility with plugins like [outline](https://github.com/aleray/mdx_outline)
