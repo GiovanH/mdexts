@@ -33,9 +33,9 @@ class YoutubeVideoInlineProcessor(LinkInlineProcessor):
         el = etree.Element("div")
         el.set("class", "lazyframe")
         el.set("data-vendor", "youtube")
-        el.set("style", f"background-image: url(https://i.ytimg.com/vi_webp/{video_id}/sddefault.webp);")
+        el.set("style", f"background-image: url(https://i.ytimg.com/vi_webp/{video_id}/hqdefault.webp);")
 
-        el.set("onclick", f'this.outerHTML = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/{video_id}?{out_query}" title="{self.unescape(text)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>`')
+        el.set("onclick", f'this.outerHTML = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/{video_id}?{out_query}" title="{self.unescape(text)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen class="media"></iframe>`')
 
         # sub_title = etree.SubElement(el, "span")
         # sub_title.set("class", "lazyframe__title")
@@ -56,9 +56,9 @@ class YoutubeVideoInlineProcessor(LinkInlineProcessor):
     def getLink(self, data, index):
         href, title, index, handled = super().getLink(data, index)
         if handled:
-            match = re.search(r"((youtube.com\/watch\?v=)|(youtu.be\/))([A-Za-z0-9-_]+)(\?|$)", href)
+            match = re.search(r"((youtube.com\/watch\?v=)|(youtu.be\/)|(youtube.com\/embed\/))([A-Za-z0-9-_]+)(\?|&|$)", href)
             if match:
-                return href, match.group(4), title, index, handled
+                return href, match.group(5), title, index, handled
         return None, None, None, None, None
 
 
