@@ -14,6 +14,15 @@ Just embed video files as if they were images. Video files are detected based on
 ![alt](./video.mp4)
 ```
 
+You can manipulate the attributes of the `video` element by adding query parameters to the source URL:
+
+- `muted`: Set to any value to mute the video by default.
+- `autoplay`: Set to any value to enable autoplay. (Most browsers require `muted` to respect this.)
+
+Special paramters:
+
+- `nocontrols`: Set to any value to *remove* the controls. Note that controls are enabled by default.
+- `gifmode`: Shorthand for `nocontrols`, `autoplay`, `muted`.
 
 ## Spoiler box
 

@@ -1,5 +1,6 @@
 from markdown.extensions import Extension
 from markdown.inlinepatterns import LinkInlineProcessor
+import urllib.parse
 import xml.etree.ElementTree as etree
 import os
 
@@ -29,12 +30,25 @@ class VideoInlineProcessor(LinkInlineProcessor):
 
         el = etree.Element("video")
 
+        src_query = urllib.parse.urlparse(src).query
+        src_query_dict = urllib.parse.parse_qs(src_query)
+
         el.set("src", src)
         el.set("type", mtype)
-        el.set("controls", "true")
 
         if title is not None:
             el.set("title", title)
+
+        if src_query_dict.get("gifmode"):
+            for param in ["nocontrols", "autoplay", "muted"]:
+                src_query_dict[param] = ["1"]
+
+        if not src_query_dict.get("nocontrols"):
+            el.set("controls", "true")
+
+        for opt_prop in ["autoplay", "muted"]:
+            if src_query_dict.get(opt_prop) is not None:
+                el.set(opt_prop, "true")
 
         el.set('alt', self.unescape(text))
         return el, m.start(0), index
@@ -42,7 +56,7 @@ class VideoInlineProcessor(LinkInlineProcessor):
     def getLink(self, data, index):
         href, title, index, handled = super().getLink(data, index)
         if handled:
-            linkext = os.path.splitext(href)[1].lower()
+            linkext = os.path.splitext(urllib.parse.urlparse(href).path)[1].lower()
             if linkext in VIDEO_EXTENSIONS:
                 mtype = f"video/{linkext.replace('.', '')}"
                 return href, title, index, mtype, handled
