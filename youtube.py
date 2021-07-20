@@ -10,7 +10,6 @@ import re
 IMAGE_LINK_RE = r'\!\['
 
 
-
 class YoutubeVideoInlineProcessor(LinkInlineProcessor):
     """ Return a img element from the given match. """
 
@@ -19,34 +18,48 @@ class YoutubeVideoInlineProcessor(LinkInlineProcessor):
         if not handled:
             return None, None, None
 
-        video_id_params, title, index, handled = self.getLink(data, index)
+        href, video_id, title, index, handled = self.getLink(data, index)
         if not handled:
             return None, None, None
 
-        video_id_params = "DdA_axFJZSg?start=8"
+        parsed_query = urllib.parse.parse_qs(urllib.parse.urlparse(href).query)
 
-        el = etree.Element("iframe")
+        if "v" in parsed_query:
+            parsed_query.pop("v")
+        parsed_query["autoplay"] = "1"
 
-        for k, v in {
-            "src": f"https://www.youtube-nocookie.com/embed/{video_id_params}",
-            "frameborder": "0",
-            "allow": "accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture",
-            "allowfullscreen": "1",
-            "width": "560",
-            "height": "315", 
-            "alt": self.unescape(text)
-        }.items():
-            el.set(k, v)
+        out_query = urllib.parse.urlencode(parsed_query)
+
+        el = etree.Element("div")
+        el.set("class", "lazyframe")
+        el.set("data-vendor", "youtube")
+        el.set("style", f"background-image: url(https://i.ytimg.com/vi_webp/{video_id}/sddefault.webp);")
+
+        el.set("onclick", f'this.outerHTML = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/{video_id}?{out_query}" title="{self.unescape(text)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>`')
+
+        # sub_title = etree.SubElement(el, "span")
+        # sub_title.set("class", "lazyframe__title")
+        # sub_title.text = repr(title)
+        # for k, v in {
+        #     "src": f"https://www.youtube-nocookie.com/embed/{video_id_params}",
+        #     "frameborder": "0",
+        #     "allow": "accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture",
+        #     "allowfullscreen": "1",
+        #     "width": "560",
+        #     "height": "315", 
+        #     "alt": self.unescape(text)
+        # }.items():
+        #     el.set(k, v)
 
         return el, m.start(0), index
 
     def getLink(self, data, index):
         href, title, index, handled = super().getLink(data, index)
         if handled:
-            match = re.search(r"((youtube.com\/watch\?v=)|(youtu.be\/))(.+)$", href)
+            match = re.search(r"((youtube.com\/watch\?v=)|(youtu.be\/))([A-Za-z0-9-_]+)(\?|$)", href)
             if match:
-                return match.group(3), title, index, handled
-        return None, None, None, None
+                return href, match.group(4), title, index, handled
+        return None, None, None, None, None
 
 
 class YoutubeVideoExtension(Extension):
