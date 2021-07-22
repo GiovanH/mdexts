@@ -5,10 +5,29 @@ import xml.etree.ElementTree as etree
 import os
 import re
 
+import logging
 
 # ![alttxt](http://x.com/) or ![alttxt](<http://x.com/>)
 IMAGE_LINK_RE = r'\!\['
 
+def tToStart(tstr):
+    # 2m30s -> 60*2 + 30
+    try:
+        if tstr.isnumeric():
+            return tstr
+    except:
+        logging.warning(f"Got non-string t= param {tstr!r}", exc_info=True)
+    try:
+        match = re.search(r"^(?:(?P<h>\d+)h){0,1}(?:(?P<m>\d+)m){0,1}(?:(?P<s>\d+)s){0,1}$", tstr)
+        groupdict = match.groupdict()
+        return int(groupdict["s"] or 0) + 60 * (int(groupdict["m"] or 0) + 60 * (int(groupdict["h"] or 0)))
+    except:
+        logging.warning(f"Improperly formatted youtube t= param {tstr!r}", exc_info=True)
+        return tstr
+
+assert tToStart("1m30s") == 90
+assert tToStart("1h30s") == 3630
+assert tToStart("350s") == 350
 
 class YoutubeVideoInlineProcessor(LinkInlineProcessor):
     """ Return a img element from the given match. """
@@ -26,14 +45,17 @@ class YoutubeVideoInlineProcessor(LinkInlineProcessor):
 
         if "v" in parsed_query:
             parsed_query.pop("v")
+        if "t" in parsed_query:
+            parsed_query["start"] = tToStart(parsed_query["t"][0])
+            parsed_query.pop("t")
         parsed_query["autoplay"] = "1"
 
-        out_query = urllib.parse.urlencode(parsed_query)
+        out_query = urllib.parse.urlencode(parsed_query, doseq=True)
 
         el = etree.Element("div")
         el.set("class", "lazyframe")
         el.set("data-vendor", "youtube")
-        el.set("style", f"background-image: url(https://i.ytimg.com/vi_webp/{video_id}/hqdefault.webp);")
+        el.set("style", f"background-image: url(https://img.youtube.com/vi/{video_id}/hqdefault.jpg);")
 
         el.set("onclick", f'this.outerHTML = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/{video_id}?{out_query}" title="{self.unescape(text)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen class="media"></iframe>`')
 
