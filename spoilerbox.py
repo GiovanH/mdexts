@@ -28,7 +28,7 @@ TEMPLATE_PRE = Template("""<div class="spoiler-wrapper">
     <button type="button" class="spoiler-button" onclick="loggle(this, 'Hide {{ desc }}', 'Show {{ desc }}')">
         Show {{ desc }}
     </button>
-    <div class="spoiler-content" style="display: none">
+    <div class="spoiler-content" markdown="1" style="display: none">
 """)
         
 TEMPLATE_POST = Template("""    </div>
@@ -58,13 +58,13 @@ class SpoilerblockPreprocessor(markdown.preprocessors.Preprocessor):
                 pretag, desc, content, posttag = match.groups()
                 desc = desc[1:] if desc else "Spoiler"
                 
-                logging.info("Found spoiler wrapped content")
-                logging.info(content)
+                # logging.debug("Found spoiler wrapped content")
+                # logging.debug(content)
 
                 pre_html = TEMPLATE_PRE.render(desc=desc, content=content)
                 post_html = TEMPLATE_POST.render(desc=desc, content=content)
                 if not inserted_script:
-                    logging.info("Inserting script for first spoilerbox")
+                    # logging.info("Inserting script for first spoilerbox")
                     pre_html = SCRIPT_PREREQ + pre_html
                     inserted_script = True
 
